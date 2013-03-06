@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import sys
-sys.path.append('/home/yaojia/tempest.essex')
+sys.path.append('TEMPESTDIR')
 
 import httplib2
 import json
