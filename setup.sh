@@ -6,11 +6,9 @@ if [ -z $TEMPESTDIR ]; then
     exit -1
 fi
 
-echo $TEMPESTDIR
-
 OBJECTDIR=${TEMPESTDIR}/openstack_tempest
 
-sed -i.bak -e "s#TEMPESTDIR#"$TEMPESTDIR"#" ./test.py
+sed -i.bak -e "s#TEMPESTDIR#"$TEMPESTDIR"#" ./test_create_delete_server_by_upload_image.py
 
 if [ ! -d ${TEMPESTDIR}/tempest ] || [ ! -f ${TEMPESTDIR}/etc/tempest.conf ]; then
     echo "The directory you given is not correct or you havn't configure your tempest! exit."
@@ -24,6 +22,6 @@ else
     mkdir $OBJECTDIR
 fi
 
-cp * $OBJECTDIR
+cp base_test.py test_*.py $OBJECTDIR
 
 echo "Setup finished! Now you can run tests in $OBJECTDIR"
