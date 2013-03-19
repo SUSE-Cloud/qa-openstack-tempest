@@ -1,16 +1,10 @@
 #!/usr/bin/python
 
 import sys
-sys.path.append('/home/yaojia/tempest.essex')
-sys.path.append('/home/yaojia/tempest.essex/qa-openstack-tempest')
+sys.path.append('./')
 
-import httplib2
 import json
-from glanceclient import Client
-from tempest.common.utils.data_utils import rand_name
-from tempest import openstack
 from base_test import BaseTest
-import time
          
 def test_tenant_reenable(tenant_name):
     """ test enable a disabled tenant """

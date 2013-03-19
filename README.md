@@ -1,16 +1,18 @@
 qa-openstack-tempest
 ====================
 
-tempest based openstack test suites
+tempest based openstack test suites, based on branch tempest/essex
 
-1. install qa-openstack-tempest
-   
-  ```
-export TEMPESTDIR="directory of tempest"
-./setup.sh
+1. Put the package in the tempest dirctory:
+```
+   tempest/
+    ├── etc
+    ├── tempest
+    ├── ...
+    └── qa-openstack-tempest
 ```
 
-  if setup success, it will print the object directory.
+2. in the object directory run:
 
-2. in the object directory run test_* scripts
+./run.sh
 

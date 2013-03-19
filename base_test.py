@@ -5,7 +5,7 @@ import json
 from glanceclient import Client
 
 import sys
-sys.path.append('/home/yaojia/tempest.essex')
+sys.path.append('../')
 
 from tempest.common.utils.data_utils import rand_name
 from tempest import openstack

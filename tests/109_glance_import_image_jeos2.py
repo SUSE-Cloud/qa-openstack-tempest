@@ -3,12 +3,12 @@
 import sys
 import os
 
-sys.path.append('/home/yaojia/tempest.essex')
-sys.path.append('/home/yaojia/tempest.essex/qa-openstack-tempest')
+sys.path.append('./')
 
 from glanceclient import Client
 from base_test import BaseTest
 import time
+import os
 
 def upload_glance_image(file, disk_format='raw', container_format='bare', image_name='jeos1', timeout=60):
     """ Upload glance image file """
@@ -31,6 +31,10 @@ def test_glance_import_image(file, disk_format='raw', container_format='bare'):
     """ test administrator can deploy a glance image """
     return upload_glance_image(file, 'raw', 'bare', 'jeos_02', 60)
 
-file = "/home/yaojia/openSUSE_11.4_JeOS.i686-0.0.1.raw"
+file = os.environ.get('IMAGE_FILE')
+if file == None or not os.path.isfile(file):
+    print "Can not find the image file %s" %file
+    exit(2)
+
 ret = test_glance_import_image(file, 'raw', 'bare')
 exit(ret)

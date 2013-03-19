@@ -1,8 +1,7 @@
 #!/usr/bin/python
 
 import sys
-sys.path.append('/home/yaojia/tempest.essex')
-sys.path.append('/home/yaojia/tempest.essex/qa-openstack-tempest')
+sys.path.append('./')
 
 from base_test import BaseTest
  

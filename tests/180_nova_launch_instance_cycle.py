@@ -1,11 +1,11 @@
 #!/usr/bin/python
 
 import sys
-sys.path.append('/home/yaojia/tempest.essex')
-sys.path.append('/home/yaojia/tempest.essex/qa-openstack-tempest')
+sys.path.append('./')
 
 from base_test import BaseTest
 import time
+import os
            
 def test_nova_launch_instance_cycle(username, password, tenant_name, image_name, flavor_id, cycle_number, timeout):
     """ test a user to teminate a creating server for times in a specific time period """
@@ -36,5 +36,11 @@ def test_nova_launch_instance_cycle(username, password, tenant_name, image_name,
 
     return 0
 
-test_nova_launch_instance_cycle('test_create_user', 'crowbar', 'test_create_tenant', 'jeos_01', 1, 3, 60)
+cycle_number = os.environ.get('CYCLE_COUNT')
+if(cycle_number != None):
+    cycle_number = int(cycle_number)
+else:
+    cycle_number = 3
+
+test_nova_launch_instance_cycle('test_create_user', 'crowbar', 'test_create_tenant', 'jeos_01', 1, cycle_number, 60)
 

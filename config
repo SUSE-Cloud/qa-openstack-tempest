@@ -1,0 +1,6 @@
+DEBUG=0
+export INSECURE=0
+export VIRT=kvm
+export MULTI_INST_COUNT=3
+export CYCLE_COUNT=3
+export IMAGE_FILE='/home/yaojia/openSUSE_11.4_JeOS.i686-0.0.1.raw'

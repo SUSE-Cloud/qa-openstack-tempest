@@ -1,10 +1,8 @@
 #!/usr/bin/python
 
 import sys
-sys.path.append('/home/yaojia/tempest.essex')
-sys.path.append('/home/yaojia/tempest.essex/qa-openstack-tempest')
+sys.path.append('./')
 
-from tempest.common.utils.data_utils import rand_name
 from base_test import BaseTest
            
 def test_nova_launch_instance_user(username, password, tenant_name, server_name, image_name, flavor_id):

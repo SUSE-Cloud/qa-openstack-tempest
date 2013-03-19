@@ -1,8 +1,8 @@
 #!/usr/bin/python
 
 import sys
-sys.path.append('/home/yaojia/tempest.essex')
-sys.path.append('/home/yaojia/tempest.essex/qa-openstack-tempest')
+import os
+sys.path.append('./')
 
 from base_test import BaseTest
            
@@ -33,6 +33,11 @@ def test_nova_launch_instance_multiple(username, password, tenant_name, image_na
     bt_user.clean_servers('test_', True)
     return 0
 
-ret = test_nova_launch_instance_multiple('test_create_user', 'crowbar', 'test_create_tenant', 'jeos_01', 1, 3)
+number = os.environ.get('MULTI_INST_COUNT')
+if(number != None):
+    number = int(number)
+else:
+    number = 3
+ret = test_nova_launch_instance_multiple('test_create_user', 'crowbar', 'test_create_tenant', 'jeos_01', 1, number)
 exit(ret)
 
