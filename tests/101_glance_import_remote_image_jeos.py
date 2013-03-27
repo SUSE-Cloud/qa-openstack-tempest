@@ -32,7 +32,7 @@ def upload_glance_remote_image(file_path, disk_format='raw', container_format='b
 
     image_id = results.id
    
-    ret = baseTest._wait_for_image_status(image_id, 'ACTIVE', 60)
+    ret = baseTest._wait_for_image_status(image_id, 'ACTIVE', timeout)
 
     image_file = "/var/lib/glance/images/" + image_id
     # Ensure the image has been realy stroed in the glance location
@@ -44,7 +44,7 @@ def upload_glance_remote_image(file_path, disk_format='raw', container_format='b
 
 def test_glance_import_remote_image(file_path, disk_format='raw', container_format='bare'):
     """ test administrator can deploy a glance image """
-    return upload_glance_remote_image(file_path, 'raw', 'bare', 'jeos_remote', 60)
+    return upload_glance_remote_image(file_path, 'raw', 'bare', 'jeos_remote', 120)
 
 file_path = os.environ.get('IMAGE_FILE_REMOTE_PATH')
 ret = test_glance_import_remote_image(file_path)
