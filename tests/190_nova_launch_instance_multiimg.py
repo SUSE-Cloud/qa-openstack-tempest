@@ -16,7 +16,7 @@ def test_nova_launch_instance_multiimg(username, password, tenant_name, images_n
     for image_name in images_name:
         image = bt.get_image_by_name(image_name)
         if(image == None):
-            return 1
+            return 3
         images_id.append(image['id'])
 
     images_dict = dict(zip(images_name, images_id))

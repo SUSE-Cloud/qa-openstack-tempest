@@ -11,6 +11,9 @@ def test_cleanup_nova_instance_user(username, password, tenant_name, server_name
     user_bt = BaseTest(username, password, tenant_name)
     server = user_bt.get_server_by_name(server_name)
 
+    if server == None:
+        return 3
+
     bt = BaseTest()
     response, content = bt.servers_client.delete_server(server['id'])
 

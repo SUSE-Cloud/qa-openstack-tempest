@@ -33,7 +33,6 @@ def test_glance_import_image(file, disk_format='raw', container_format='bare'):
 
 
 file = os.environ.get('IMAGE_FILE')
-print file
 if file == None or not os.path.isfile(file):
     print "Can not find the image file %s" %file
     exit(2)

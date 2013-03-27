@@ -1,7 +1,13 @@
 #!/usr/bin/python
 
-import sys
-sys.path.append('./')
+#import sys
+#sys.path.append('./')
+
+import sys, os
+
+print os.path.dirname(sys.argv[0])
+
+sys.path.append(os.path.join(os.path.dirname(sys.argv[0]), '..'))
 
 import json
 from base_test import BaseTest
