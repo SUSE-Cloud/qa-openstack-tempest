@@ -16,23 +16,15 @@ class BaseTest(object):
 
     def __init__(self, username=None, password=None, tenant_name=None):
 
-        self.username = username
-        self.password = password
-        self.tenant_name = tenant_name
-
-        if(username == None):
-            self.username = 'admin'
-        if(password == None):
-            self.password = 'crowbar'
-        if(tenant_name == None):
-            self.tenant_name = 'admin'
+        self.username = username or 'admin'
+        self.password = password or 'crowbar'
+        self.tenant_name = tenant_name or 'admin'
 
         self.os = openstack.Manager(self.username, self.password, self.tenant_name)
         self.servers_client = self.os.servers_client
         self.images_client = self.os.images_client
         self.flavors_client = self.os.flavors_client
         self.volumes_client = self.os.volumes_client
-        self.volumes_service = 'volume'
         self.config = self.os.config
 
         self.flavor_ref = self.config.compute.flavor_ref
@@ -399,6 +391,7 @@ class BaseTest(object):
         headers['X-Auth-Token'] = self.token
 
         req_url = url
+
         resp, resp_body = self.http_obj.request(req_url, method,
                           headers=headers, body=body)
         if resp.status == 401:
