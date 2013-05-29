@@ -2,13 +2,14 @@
 
 import httplib2
 import json
-from glanceclient import Client
 
 import sys
 sys.path.append('../')
+sys.path.append('/opt/stack/python-glanceclient')
+from glanceclient import Client
 
 from tempest.common.utils.data_utils import rand_name
-from tempest import openstack
+from tempest import clients as openstack
 from tempest import exceptions
 import time
 
@@ -17,7 +18,7 @@ class BaseTest(object):
     def __init__(self, username=None, password=None, tenant_name=None):
 
         self.username = username or 'admin'
-        self.password = password or 'crowbar'
+        self.password = password or 'password'
         self.tenant_name = tenant_name or 'admin'
 
         self.os = openstack.Manager(self.username, self.password, self.tenant_name)
@@ -28,7 +29,7 @@ class BaseTest(object):
         self.config = self.os.config
 
         self.flavor_ref = self.config.compute.flavor_ref
-        self.auth_url = self.config.identity.auth_url
+        self.auth_url = self.os.auth_url
 
         self.token = self._get_user_token()
 
@@ -55,7 +56,6 @@ class BaseTest(object):
                 required time (%s s).' % (server_id, status,
                                           timeout)
                 message += ' Current status: %s.' % server_status
-                print message
                 return 1
         return 0
 
@@ -80,7 +80,6 @@ class BaseTest(object):
                 required time (%s s).' % (image_id, status,
                                           timeout)
                 message += ' Current status: %s.' % image_status
-                print message
                 return 1
 
         return 0
@@ -100,7 +99,9 @@ class BaseTest(object):
             },
         }
         http = httplib2.Http()
-        response, content = http.request(self.auth_url, 'POST',
+	token_url = self.auth_url + '/tokens'
+
+        response, content = http.request(token_url, 'POST',
                                         headers=headers,
                                         body=json.dumps(body))
 
@@ -169,6 +170,65 @@ class BaseTest(object):
 
         return user
 
+    def delete_user(self, user_id):
+
+        endpoint = bt.get_service_endpoint('keystone')
+        endpoint = endpoint + '/users/' + user_id
+
+        response, content = self.delete(endpoint)
+
+        if(response['status'] == '204'):
+            return 0
+
+        return 1
+
+    def delete_mutiple_users(self, exception_list = None):
+	endpoint = self.get_service_endpoint('keystone')
+        endpoint = endpoint + '/users'
+
+        response, content = self.get(endpoint)
+        users = json.loads(content)
+
+	for index in range(0, len(users['users'])):
+            user_name = users['users'][index]['name']
+	    if(len(exception_list) != 0):
+            	if(user_name in exception_list):
+		    continue
+	    
+            user_id = users['users'][index]['id']
+	    if(self.delete_user(user_id)):
+	    	print "delete user: %s failed!" % user_name
+
+    def delete_tenant(self, tenant_id):
+        endpoint = bt.get_service_endpoint('keystone')
+        endpoint = endpoint + '/tenants/' + tenant_id
+
+        response, content = bt.delete(endpoint)
+
+        if(response['status'] == '204'):
+            return 0
+
+        return 1
+
+    def delete_multiple_tenants(self, exception_list = None):
+	endpoint = self.get_service_endpoint('keystone')
+        endpoint = endpoint + '/tenants'
+
+        response, content = self.get(endpoint)
+        tenants = json.loads(content)
+
+        tenant = None
+	for index in range(0, len(tenants['tenants'])):
+            tenant_name = tenants['tenants'][index]['name']
+	    if(exception_list != None):
+                if(tenant_name in exception_list):
+		    print "tenant: %s is in exception list" % tenant_name
+		    continue
+            print "tenant: %s is not in exception list, will be deleted!" % tenant_name
+            tenant_id = tenants['tenants'][index]['id']
+	    if(self.delete_tenant(tenant_id)):
+	        print "delete tenant: %s failed!" % user_name
+
     def get_server_by_name(self, name):
         resp, body = self.servers_client.list_servers()
 
@@ -214,7 +274,6 @@ class BaseTest(object):
         endpoint = endpoint + '/images'
 
         response, content = self.get(endpoint)
-
         images = json.loads(content)
 
         image = None
@@ -246,22 +305,25 @@ class BaseTest(object):
     def get_service_endpoint(self, service):
         """ Get service endpoint """
 
+	endpoint = None
         res_body = self._get_token_response()
 
         for index in range(0, len(res_body['access']['serviceCatalog'])):
             if res_body['access']['serviceCatalog'][index]['name'] == service:
-                return res_body['access']['serviceCatalog'][index]['endpoints'][0]['adminURL']
+                endpoint = res_body['access']['serviceCatalog'][index]['endpoints'][0]['adminURL']
 
-        return -1
+	if endpoint != None and service == 'glance':
+		endpoint += '/v2'
+
+        return endpoint
 
     def upload_glance_image(self, file, disk_format='raw', container_format='bare'):
         """ Upload glance image file """
 
-        token = self.get_user_token()
         endpoint = self.get_service_endpoint('glance')
         endpoint = endpoint.rsplit('/', 1)[0]
 
-        glance = Client('1', endpoint, token)
+        glance = Client('1', endpoint = endpoint, token = self.token) # version 2 seem not to support upload image
 
         image_name = rand_name('jeos_')
         image = glance.images.create(name=image_name, disk_format=disk_format, container_format=container_format)
@@ -441,20 +503,32 @@ class BaseTest(object):
 if __name__ == '__main__':
 
     bt = BaseTest()
-    #user = bt.get_user_by_name('admin')
-    
+    #user = bt.get_user_by_name('alt_demo')
     #print user
 
     #user = bt.get_user_by_id('ce205b61760c463cb46e41909de8495f')
     #print user
+    #image = bt.get_image_by_name('cirros-0.3.1-x86_64-uec')
+    #print image
 
-    image = bt.get_image_by_name('jeos01')
+    #image = bt.get_image_by_id(image['id'])
 
-    print image
+    #tenant = bt.get_tenant_by_name('demo')
+    #print tenant
 
-    image = bt.get_image_by_id(image['id'])
+    #server = bt.get_server_by_name('ImagesWhiteboxTest-instance707177')
+    #print server
 
-    print image
+    #bt.clean_servers()
+    #bt.upload_glance_image('/home/yaojia/openSUSE_11.4_JeOS.i686-0.0.1.raw')
+    #bt.clean_images('jeos_347771')   
+    exception_user_list = ('admin', 'demo', 'cinder', 'alt_demo', 'glance', 'nova')
+    bt.delete_mutiple_users(exception_user_list)
+
+    exception_tenant_list = ('admin', 'alt_demo', 'demo', 'invisible_to_admin', 'service')
+    bt.delete_multiple_tenants(exception_tenant_list)
+
+    #print image
 
     #bt.clean_servers()
     #bt.clean_images()

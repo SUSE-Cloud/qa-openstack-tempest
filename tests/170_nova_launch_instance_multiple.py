@@ -25,7 +25,7 @@ def test_nova_launch_instance_multiple(username, password, tenant_name, image_na
 
     ret = 0
     for server_id in server_ids:
-        ret += bt_user._wait_for_server_status(server_id, 'ACTIVE', 180)
+        ret += bt_user._wait_for_server_status(server_id, 'ACTIVE', 600)
 
     if(ret > 0):
         return 1

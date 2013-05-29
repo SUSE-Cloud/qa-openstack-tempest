@@ -17,8 +17,7 @@ def upload_glance_remote_image(file_path, disk_format='raw', container_format='b
     endpoint = baseTest.get_service_endpoint('glance')
     endpoint = endpoint.rsplit('/', 1)[0]
 
-    glance = Client('1', endpoint, token)
-
+    glance = Client('1', endpoint = endpoint, token = token)
     meta = {
         'name': image_name,
         'is_public': True,

@@ -23,17 +23,19 @@ def test_nova_launch_instance_multiimg(username, password, tenant_name, images_n
 
     for image_name in images_dict:
         server_name = 'jeos_' + image_name
+        print server_name
         resp, server = user_bt.servers_client.create_server(server_name, images_dict[image_name], flavor_id)
+        time.sleep(1)
 
         ret = user_bt._wait_for_server_status(server['id'], 'ACTIVE', timeout)
         if(ret != 0):
             return 1
 
-    user_bt.clean_servers('jeos_', True)
+    #user_bt.clean_servers('jeos_', True)
 
     return 0
 
 images_name = ['jeos_01', 'jeos_02']
-ret = test_nova_launch_instance_multiimg('test_create_user', 'crowbar', 'test_create_tenant', images_name, 1, 180)
+ret = test_nova_launch_instance_multiimg('test_create_user', 'crowbar', 'test_create_tenant', images_name, 1, 600)
 exit(ret)
 

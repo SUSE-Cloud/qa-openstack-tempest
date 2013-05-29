@@ -18,7 +18,7 @@ def upload_glance_image(file, disk_format='raw', container_format='bare', image_
     endpoint = baseTest.get_service_endpoint('glance')
     endpoint = endpoint.rsplit('/', 1)[0]
 
-    glance = Client('1', endpoint, token)
+    glance = Client('1', endpoint=endpoint, token=token)
 
     start = int(time.time())
     image = glance.images.create(name=image_name, disk_format=disk_format, container_format=container_format, is_public=True)

@@ -5,8 +5,6 @@
 
 import sys, os
 
-print os.path.dirname(sys.argv[0])
-
 sys.path.append(os.path.join(os.path.dirname(sys.argv[0]), '..'))
 
 import json
@@ -19,11 +17,13 @@ def test_create_tenant_by_name(name):
     endpoint = endpoint + '/tenants'
     headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
 
+    print endpoint
+
     body = {
                 "tenant": {
                     "name": name,
                     "description": "test create tenant",
-                    "enabled": "true",
+                    "enabled": True,
                 },
     }
     

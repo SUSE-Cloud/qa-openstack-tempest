@@ -15,8 +15,12 @@ def test_nova_launch_instance_admin(server_name, image_name, flavor_id):
         return 3
 
     image_id = image['id']
+    print image_id
 
     resp, server = bt.servers_client.create_server(server_name, image_id, flavor_id)
+
+    print resp
+    print server
 
     return bt._wait_for_server_status(server['id'], 'ACTIVE', 180)
 

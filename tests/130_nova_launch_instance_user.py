@@ -19,5 +19,5 @@ def test_nova_launch_instance_user(username, password, tenant_name, server_name,
 
     return user_bt._wait_for_server_status(server['id'], 'ACTIVE', 180)
 
-ret = test_nova_launch_instance_user('test_create_user', 'crowbar', 'test_create_tenant', 'jeos_01', 'jeos_01', 1)
+ret = test_nova_launch_instance_user('test_create_user', 'crowbar', 'test_create_tenant', 'jeos_01', 'cirros-0.3.1-x86_64-uec', 1)
 exit(ret)

@@ -17,7 +17,7 @@ def test_create_tenant_by_name(name):
                 "tenant": {
                     "name": name,
                     "description": "test create tenant",
-                    "enabled": "true",
+                    "enabled": True,
                 },
     }
     
