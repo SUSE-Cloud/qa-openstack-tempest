@@ -53,6 +53,9 @@ def delete_image(name, regmode):
     bt = BaseTest()
     bt.clean_images(name, regmode)
 
+def clean_servers():
+    pass
+
 delete_user('test_create_user')
 delete_tenant('test_create_tenant')
 delete_image('jeos_', True)

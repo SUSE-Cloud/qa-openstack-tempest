@@ -99,8 +99,8 @@ class BaseTest(object):
             },
         }
         http = httplib2.Http()
-	token_url = self.auth_url + '/tokens'
-
+        token_url = self.auth_url + '/tokens'
+    
         response, content = http.request(token_url, 'POST',
                                         headers=headers,
                                         body=json.dumps(body))
@@ -183,21 +183,20 @@ class BaseTest(object):
         return 1
 
     def delete_mutiple_users(self, exception_list = None):
-	endpoint = self.get_service_endpoint('keystone')
+        endpoint = self.get_service_endpoint('keystone')
         endpoint = endpoint + '/users'
 
         response, content = self.get(endpoint)
         users = json.loads(content)
 
-	for index in range(0, len(users['users'])):
+        for index in range(0, len(users['users'])):
             user_name = users['users'][index]['name']
-	    if(len(exception_list) != 0):
-            	if(user_name in exception_list):
-		    continue
+            if((exception_list != None) and (user_name in exception_list)):
+		            continue
 	    
             user_id = users['users'][index]['id']
-	    if(self.delete_user(user_id)):
-	    	print "delete user: %s failed!" % user_name
+            if(self.delete_user(user_id)):
+        	print "delete user: %s failed!" % user_name
 
     def delete_tenant(self, tenant_id):
         endpoint = bt.get_service_endpoint('keystone')
@@ -211,7 +210,7 @@ class BaseTest(object):
         return 1
 
     def delete_multiple_tenants(self, exception_list = None):
-	endpoint = self.get_service_endpoint('keystone')
+        endpoint = self.get_service_endpoint('keystone')
         endpoint = endpoint + '/tenants'
 
         response, content = self.get(endpoint)
@@ -305,15 +304,15 @@ class BaseTest(object):
     def get_service_endpoint(self, service):
         """ Get service endpoint """
 
-	endpoint = None
+        endpoint = None
         res_body = self._get_token_response()
 
         for index in range(0, len(res_body['access']['serviceCatalog'])):
             if res_body['access']['serviceCatalog'][index]['name'] == service:
                 endpoint = res_body['access']['serviceCatalog'][index]['endpoints'][0]['adminURL']
 
-	if endpoint != None and service == 'glance':
-		endpoint += '/v2'
+	    if endpoint != None and service == 'glance':
+		    endpoint += '/v2'
 
         return endpoint
 
@@ -331,26 +330,30 @@ class BaseTest(object):
 
         return image.id
 
-    def clean_servers(self, name=None, regmode=False):
+    def clean_servers(self, name=None, regmode=False, exception_list=None):
 
         resp = None
         meta = None
-        resp, body = self.servers_client.list_servers()
+        search_opts = {'all_tenants':1}
+        resp, body = self.servers_client.list_servers(search_opts)
 
         for index in range(0, len(body['servers'])):
             server_id = body['servers'][index]['id']
+            server_name = body['servers'][index]['name']
+            if((exception_list != None) and (server_name in exception_list)):
+                continue
             if(name == None):
                 resp, meta = self.servers_client.delete_server(server_id)
             else:
-                server_name = body['servers'][index]['name']
                 if(regmode == False):
                     if(server_name == name):
                         resp, meta = self.servers_client.delete_server(server_id)
                 else:
                     if(server_name.startswith(name)):
                         resp, meta = self.servers_client.delete_server(server_id)
+
+            time.sleep(1)
         
-        return resp, meta 
 
     def clean_images(self, name=None, regmode=False):
         resp, images = self.images_client.list_images()
@@ -398,15 +401,18 @@ class BaseTest(object):
 
     def clean_snapshots(self):
 
-        endpoint = self.get_service_endpoint('nova-volume')
+        endpoint = self.get_service_endpoint('cinder')
         endpoint = endpoint + '/snapshots'
 
-        token = self.get_user_token()
+        token = self._get_user_token()
 
         headers = {'X-Auth-Token': token}
     
         http = httplib2.Http()
         response, content = http.request(endpoint, 'GET', headers=headers)
+
+        print content
+        exit(0)
 
         snapshots = json.loads(content)
 
@@ -415,11 +421,14 @@ class BaseTest(object):
             response, content = http.request(endpoint, 'DELETE', headers=headers)
 
     def clean_volumes(self):
-        resp, volumes = self.volumes_client.list_volumes()
+
+        search_opts = {'all_tenants':1}
+        resp, volumes = self.volumes_client.list_volumes(search_opts)
         
         for index in range(0, len(volumes)):
             volume_id = volumes[index]['id']
             self.volumes_client.delete_volume(volume_id)
+            time.sleep(1)
 
         time.sleep(120)
 

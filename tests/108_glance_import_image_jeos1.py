@@ -17,6 +17,7 @@ def upload_glance_image(file, disk_format='raw', container_format='bare', image_
     token = baseTest.token
     endpoint = baseTest.get_service_endpoint('glance')
     endpoint = endpoint.rsplit('/', 1)[0]
+    print endpoint
 
     glance = Client('1', endpoint=endpoint, token=token)
 
@@ -29,7 +30,7 @@ def upload_glance_image(file, disk_format='raw', container_format='bare', image_
 
 def test_glance_import_image(file, disk_format='raw', container_format='bare'):
     """ test administrator can deploy a glance image """
-    return upload_glance_image(file, 'raw', 'bare', 'jeos_01', 60)
+    return upload_glance_image(file, 'raw', 'bare', 'jeos_02', 60)
 
 
 file = os.environ.get('IMAGE_FILE')
