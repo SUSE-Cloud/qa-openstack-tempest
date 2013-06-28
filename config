@@ -1,5 +1,5 @@
 DEBUG=0
 export MULTI_INST_COUNT=3
 export CYCLE_COUNT=3
-export IMAGE_FILE='/home/yaojia/SP2-64up.qcow2'
-export IMAGE_FILE_REMOTE_PATH='http://clouddata.cloud.suse.de/images/SP2-64up.qcow2'
+export IMAGE_FILE='/home/yaojia/SP3-64up.qcow2'
+export IMAGE_FILE_REMOTE_PATH='http://clouddata.cloud.suse.de/images/SP3-64up.qcow2'

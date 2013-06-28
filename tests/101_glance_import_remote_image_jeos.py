@@ -26,12 +26,16 @@ def upload_glance_remote_image(file_path, disk_format='raw', container_format='b
         'copy_from': file_path,
     }
 
+    print 'file_path = ', file_path
+
     start = int(time.time())
     results = glance.images.create(**meta)
 
+    print 'results = ', results
+
     image_id = results.id
    
-    ret = baseTest._wait_for_image_status(image_id, 'ACTIVE', timeout)
+    ret = baseTest._wait_for_image_status(image_id, 'ACTIVE', 1200)
 
     image_file = "/var/lib/glance/images/" + image_id
     # Ensure the image has been realy stroed in the glance location

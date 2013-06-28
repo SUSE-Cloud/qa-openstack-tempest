@@ -18,7 +18,7 @@ class BaseTest(object):
     def __init__(self, username=None, password=None, tenant_name=None):
 
         self.username = username or 'admin'
-        self.password = password or 'password'
+        self.password = password or 'crowbar'
         self.tenant_name = tenant_name or 'admin'
 
         self.os = openstack.Manager(self.username, self.password, self.tenant_name)
@@ -311,8 +311,8 @@ class BaseTest(object):
             if res_body['access']['serviceCatalog'][index]['name'] == service:
                 endpoint = res_body['access']['serviceCatalog'][index]['endpoints'][0]['adminURL']
 
-	    if endpoint != None and service == 'glance':
-		    endpoint += '/v2'
+	    #if endpoint != None and service == 'glance':
+		#    endpoint += '/v2'
 
         return endpoint
 
@@ -353,6 +353,8 @@ class BaseTest(object):
                         resp, meta = self.servers_client.delete_server(server_id)
 
             time.sleep(1)
+
+        return resp, meta
         
 
     def clean_images(self, name=None, regmode=False):

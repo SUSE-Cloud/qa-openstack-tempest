@@ -12,7 +12,7 @@ tempest based openstack test suites, based on branch tempest/essex
     └── qa-openstack-tempest
 ```
 
-2. Configure config by your test requirement
+2. Configure file 'config' by your test requirement
 
 3. In the object directory run: ./run.sh
 
