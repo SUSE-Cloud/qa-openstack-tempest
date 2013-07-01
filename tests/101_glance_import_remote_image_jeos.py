@@ -26,12 +26,8 @@ def upload_glance_remote_image(file_path, disk_format='raw', container_format='b
         'copy_from': file_path,
     }
 
-    print 'file_path = ', file_path
-
     start = int(time.time())
     results = glance.images.create(**meta)
-
-    print 'results = ', results
 
     image_id = results.id
    

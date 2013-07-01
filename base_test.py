@@ -311,6 +311,7 @@ class BaseTest(object):
             if res_body['access']['serviceCatalog'][index]['name'] == service:
                 endpoint = res_body['access']['serviceCatalog'][index]['endpoints'][0]['adminURL']
 
+        #for openstack/grizzly, we need append glance version, for SUSE Cloud2.0, we needn't it
 	    #if endpoint != None and service == 'glance':
 		#    endpoint += '/v2'
 
@@ -322,7 +323,8 @@ class BaseTest(object):
         endpoint = self.get_service_endpoint('glance')
         endpoint = endpoint.rsplit('/', 1)[0]
 
-        glance = Client('1', endpoint = endpoint, token = self.token) # version 2 seem not to support upload image
+        # version 2 seem not to support upload image
+        glance = Client('1', endpoint = endpoint, token = self.token) 
 
         image_name = rand_name('jeos_')
         image = glance.images.create(name=image_name, disk_format=disk_format, container_format=container_format)
@@ -355,7 +357,6 @@ class BaseTest(object):
             time.sleep(1)
 
         return resp, meta
-        
 
     def clean_images(self, name=None, regmode=False):
         resp, images = self.images_client.list_images()

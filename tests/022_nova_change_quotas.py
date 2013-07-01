@@ -39,6 +39,6 @@ def test_nova_change_quota_by_tenantname(tenant_name, key, value):
         return 0
     return 1
 
-ret = test_nova_change_quota_by_tenantname('test_create_tenant', 'instances', 10)
+ret = test_nova_change_quota_by_tenantname('test_create_tenant', 'instances', 20)
 exit(ret)
 
