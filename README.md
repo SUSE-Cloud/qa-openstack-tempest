@@ -18,3 +18,6 @@ tempest based openstack test suites, based on branch tempest/essex
 
 3. In the object directory run: ./run.sh
 
+4. To run test case individually, please process like this:
+   # source config
+   # ./test/<test case>
