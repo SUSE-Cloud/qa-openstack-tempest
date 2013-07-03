@@ -21,7 +21,7 @@ def test_nova_change_quota_by_tenantname(tenant_name, key, value):
     headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
 
     bt = BaseTest()
-    endpoint = bt.get_service_endpoint('nova')
+    endpoint = bt.get_service_endpoint('nova')['adminURL']
     tenant = bt.get_tenant_by_name(tenant_name)
 
     body = {

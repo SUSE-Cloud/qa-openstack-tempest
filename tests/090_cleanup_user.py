@@ -16,7 +16,7 @@ def test_delete_user(username):
 
     user_id = user['id']
 
-    endpoint = bt.get_service_endpoint('keystone')
+    endpoint = bt.get_service_endpoint('keystone')['adminURL']
     endpoint = endpoint + '/users/' + user_id
 
     response, content = bt.delete(endpoint)    

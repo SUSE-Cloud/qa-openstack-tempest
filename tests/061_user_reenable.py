@@ -17,7 +17,7 @@ def test_user_reenable(username):
 
     user_id = user['id']
 
-    endpoint = bt.get_service_endpoint('keystone')
+    endpoint = bt.get_service_endpoint('keystone')['adminURL']
     endpoint = endpoint + '/users/' + user_id + '/enabled'
 
     headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}

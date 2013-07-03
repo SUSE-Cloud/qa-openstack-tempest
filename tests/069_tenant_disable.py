@@ -17,7 +17,7 @@ def test_tenant_disable(tenant_name):
 
     tenant_id = tenant['id']
 
-    endpoint = bt.get_service_endpoint('keystone')
+    endpoint = bt.get_service_endpoint('keystone')['adminURL']
     endpoint = endpoint + '/tenants/' + tenant_id
 
     body = {

@@ -123,7 +123,7 @@ class BaseTest(object):
         return res_body['access']['token']['id']
 
     def get_tenant_by_name(self, name):
-        endpoint = self.get_service_endpoint('keystone')
+        endpoint = self.get_service_endpoint('keystone')['adminURL']
         endpoint = endpoint + '/tenants'
 
         response, content = self.get(endpoint)
@@ -139,7 +139,7 @@ class BaseTest(object):
         return tenant
 
     def get_tenant_by_id(self, id):
-        endpoint = self.get_service_endpoint('keystone')
+        endpoint = self.get_service_endpoint('keystone')['adminURL']
         endpoint = endpoint + '/tenants'
 
         response, content = self.get(endpoint)
@@ -155,7 +155,7 @@ class BaseTest(object):
         return tenant
 
     def get_user_by_name(self, name):
-        endpoint = self.get_service_endpoint('keystone')
+        endpoint = self.get_service_endpoint('keystone')['adminURL']
         endpoint = endpoint + '/users'
 
         response, content = self.get(endpoint)
@@ -172,7 +172,7 @@ class BaseTest(object):
 
     def delete_user(self, user_id):
 
-        endpoint = bt.get_service_endpoint('keystone')
+        endpoint = bt.get_service_endpoint('keystone')['adminURL']
         endpoint = endpoint + '/users/' + user_id
 
         response, content = self.delete(endpoint)
@@ -183,7 +183,7 @@ class BaseTest(object):
         return 1
 
     def delete_mutiple_users(self, exception_list = None):
-        endpoint = self.get_service_endpoint('keystone')
+        endpoint = self.get_service_endpoint('keystone')['adminURL']
         endpoint = endpoint + '/users'
 
         response, content = self.get(endpoint)
@@ -199,7 +199,7 @@ class BaseTest(object):
         	print "delete user: %s failed!" % user_name
 
     def delete_tenant(self, tenant_id):
-        endpoint = bt.get_service_endpoint('keystone')
+        endpoint = bt.get_service_endpoint('keystone')['adminURL']
         endpoint = endpoint + '/tenants/' + tenant_id
 
         response, content = bt.delete(endpoint)
@@ -210,7 +210,7 @@ class BaseTest(object):
         return 1
 
     def delete_multiple_tenants(self, exception_list = None):
-        endpoint = self.get_service_endpoint('keystone')
+        endpoint = self.get_service_endpoint('keystone')['adminURL']
         endpoint = endpoint + '/tenants'
 
         response, content = self.get(endpoint)
@@ -252,7 +252,7 @@ class BaseTest(object):
 
     def get_user_by_id(self, id):
 
-        endpoint = self.get_service_endpoint('keystone')
+        endpoint = self.get_service_endpoint('keystone')['adminURL']
         endpoint = endpoint + '/users'
 
         response, content = self.get(endpoint)
@@ -269,7 +269,7 @@ class BaseTest(object):
     
     def get_image_by_name(self, name):
         
-        endpoint = self.get_service_endpoint('glance')
+        endpoint = self.get_service_endpoint('glance')['adminURL']
         endpoint = endpoint + '/images'
 
         response, content = self.get(endpoint)
@@ -285,7 +285,7 @@ class BaseTest(object):
         return image
 
     def get_image_by_id(self, id):
-        endpoint = self.get_service_endpoint('glance')
+        endpoint = self.get_service_endpoint('glance')['adminURL']
         endpoint = endpoint + '/images'
 
         response, content = self.get(endpoint)
@@ -307,20 +307,23 @@ class BaseTest(object):
         endpoint = None
         res_body = self._get_token_response()
 
+        endpoints = {}
         for index in range(0, len(res_body['access']['serviceCatalog'])):
             if res_body['access']['serviceCatalog'][index]['name'] == service:
-                endpoint = res_body['access']['serviceCatalog'][index]['endpoints'][0]['adminURL']
+                endpoints['adminURL'] = res_body['access']['serviceCatalog'][index]['endpoints'][0]['adminURL']
+                endpoints['publicURL'] = res_body['access']['serviceCatalog'][index]['endpoints'][0]['publicURL']
+                endpoints['internalURL'] = res_body['access']['serviceCatalog'][index]['endpoints'][0]['internalURL']
 
         #for openstack/grizzly, we need append glance version, for SUSE Cloud2.0, we needn't it
 	    #if endpoint != None and service == 'glance':
 		#    endpoint += '/v2'
 
-        return endpoint
+        return endpoints
 
     def upload_glance_image(self, file, disk_format='raw', container_format='bare'):
         """ Upload glance image file """
 
-        endpoint = self.get_service_endpoint('glance')
+        endpoint = self.get_service_endpoint('glance')['adminURL']
         endpoint = endpoint.rsplit('/', 1)[0]
 
         # version 2 seem not to support upload image
@@ -376,7 +379,7 @@ class BaseTest(object):
                         self.images_client.delete_image(image_id)
 
     def _delete_flavor(self, flavor_id):
-        endpoint = self.get_service_endpoint('nova')
+        endpoint = self.get_service_endpoint('nova')['adminURL']
         endpoint = endpoint + '/flavors/' + str(flavor_id)
 
         token = self.get_user_token()
@@ -404,7 +407,7 @@ class BaseTest(object):
 
     def clean_snapshots(self):
 
-        endpoint = self.get_service_endpoint('cinder')
+        endpoint = self.get_service_endpoint('cinder')['adminURL']
         endpoint = endpoint + '/snapshots'
 
         token = self._get_user_token()
@@ -452,6 +455,9 @@ class BaseTest(object):
 
     def put(self, url, headers, body):
         return self.request('PUT', url, headers, body)
+
+    def patch(self, url, headers, body):
+        return self.request('PATCH', url, headers, body)
 
     def request(self, method, url, headers=None, body=None, depth=0):
         """A simple HTTP request interface."""
@@ -537,7 +543,7 @@ if __name__ == '__main__':
     exception_user_list = ('admin', 'demo', 'cinder', 'alt_demo', 'glance', 'nova')
     bt.delete_mutiple_users(exception_user_list)
 
-    exception_tenant_list = ('admin', 'alt_demo', 'demo', 'invisible_to_admin', 'service')
+    exception_tenant_list = ('admin', 'alt_demo', 'demo', 'invisible_to_admin', 'service', 'openstack')
     bt.delete_multiple_tenants(exception_tenant_list)
 
     #print image

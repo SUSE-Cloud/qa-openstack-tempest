@@ -9,7 +9,7 @@ from base_test import BaseTest
 def test_create_user_by_name(username, password, tenant_name):
     """ test administrator to create a user whose name is the giving name"""
     bt = BaseTest()
-    endpoint = bt.get_service_endpoint('keystone')
+    endpoint = bt.get_service_endpoint('keystone')['adminURL']
     endpoint = endpoint + '/users'
     headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
 

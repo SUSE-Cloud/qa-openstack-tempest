@@ -17,7 +17,7 @@ def test_delete_tenant_by_name(name):
 
     tenant_id = tenant['id']
 
-    endpoint = bt.get_service_endpoint('keystone')
+    endpoint = bt.get_service_endpoint('keystone')['adminURL']
     endpoint = endpoint + '/tenants/' + tenant_id
 
     response, content = bt.delete(endpoint)

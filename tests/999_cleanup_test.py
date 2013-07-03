@@ -17,7 +17,7 @@ def delete_user(username):
 
     user_id = user['id']
 
-    endpoint = bt.get_service_endpoint('keystone')
+    endpoint = bt.get_service_endpoint('keystone')['adminURL']
     endpoint = endpoint + '/users/' + user_id
 
     response, content = bt.delete(endpoint)    
@@ -57,7 +57,7 @@ def delete_server():
     bt = BaseTest()
     bt.clean_servers()
 
+delete_server()
 delete_user('test_create_user')
 delete_tenant('test_create_tenant')
 delete_image('jeos_', True)
-delete_server()

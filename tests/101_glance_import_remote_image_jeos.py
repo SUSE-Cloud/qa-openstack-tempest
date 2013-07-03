@@ -14,7 +14,7 @@ def upload_glance_remote_image(file_path, disk_format='raw', container_format='b
 
     baseTest = BaseTest()
     token = baseTest.token
-    endpoint = baseTest.get_service_endpoint('glance')
+    endpoint = baseTest.get_service_endpoint('glance')['adminURL']
     endpoint = endpoint.rsplit('/', 1)[0]
 
     glance = Client('1', endpoint = endpoint, token = token)

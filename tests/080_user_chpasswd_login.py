@@ -5,6 +5,7 @@ sys.path.append('./')
 
 import json
 from base_test import BaseTest
+from keystoneclient.v2_0.users import UserManager
 
 def change_user_password(username, password, tenant_name, newpassword):
     """ Change a user can change its password """
@@ -16,19 +17,19 @@ def change_user_password(username, password, tenant_name, newpassword):
 
     headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
 
-    endpoint = bt.get_service_endpoint('keystone')
-    endpoint = endpoint + '/users/' + user['id']
+    endpoint = bt.get_service_endpoint('keystone')['internalURL']
+    endpoint = endpoint + '/OS-KSCRUD/users/' + user['id']
 
     bt_user = BaseTest(username, password, tenant_name)
     
     post_body = {
-                'user': {
-                    'id': user['id'],
-                    'password': newpassword,
+                "user": {
+                    "password": newpassword,
+                    "original_password": password,
+                    }
                 }
-            }
 
-    response, content = bt_user.put(endpoint, headers=headers, body=json.dumps(post_body))
+    response, content = bt_user.patch(endpoint, headers=headers, body=json.dumps(post_body))
 
     if(response['status'] != '200'):
         return 1
@@ -42,20 +43,14 @@ def test_user_chpasswd_login(username, password, tenant_name, newpassword):
     if(ret != 0):
         return ret
 
-    bt = BaseTest()
-    endpoint = bt.get_service_endpoint('nova')
-    endpoint = endpoint + '/servers'
-
     bt_user = BaseTest(username, newpassword, tenant_name)
-    response, content = bt_user.get(endpoint)
+    resp, body = bt_user.servers_client.list_servers()
+
+    if resp['status'] != '200':
+        return 1
 
     # restore the user's password
-    change_user_password(username, newpassword, tenant_name, password)
-
-    if response['status'] == '200':
-        return 0
-
-    return 1
+    return change_user_password(username, newpassword, tenant_name, password)
 
 ret = test_user_chpasswd_login('test_create_user', 'crowbar', 'test_create_tenant', 'openstack')
 exit(ret)
