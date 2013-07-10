@@ -73,6 +73,26 @@ sed -i "s|$PREDECESSOR|db_uri = $DB_URI|g" $CONF_PATH
 echo "Setting flag to indicate that Quantum is available..."
 sed -i -e "s/quantum_available = .*/quantum_available = true/g" $CONF_PATH
 
+echo "Querying for the public_network_id..."
+public_network_id=$(quantum net-list | grep 'floating' | awk '{print $2}')
+
+if [ "$public_network_id" != "" ] ; then
+  echo "Configuring the public_network_id with $public_network_id ..."
+  sed -i -e "s/public_network_id = .*/public_network_id = $public_network_id/" $CONF_PATH
+else
+  echo "Unable to access the public_network_id."
+fi
+
+echo "Querying for the public_router_id..."
+public_router_id=$(quantum router-list | grep "$public_network_id" | awk '{print $2}')
+
+if [ "$public_router_id" != "" ] ; then
+  echo "Configuring the public_router_id with $public_router_id ..."
+  sed -i -e "s/public_router_id = .*/public_router_id = $public_router_id/" $CONF_PATH
+else
+  echo "Unable to access the public_router_id."
+fi
+
 # prepare some tenants
 echo "Preparing new tenants..."
 
