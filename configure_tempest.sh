@@ -57,9 +57,9 @@ echo "Modifying the admin settings..."
 sed -i -e "s/admin_password = .*/admin_password = crowbar/g" $CONF_PATH
 sed -i -e "s/admin_tenant_name = .*/admin_tenant_name = openstack/g" $CONF_PATH
 
-echo "Adjusting the build timeout..."
+# echo "Adjusting the build timeout..."
 # increase the build timeout in the tempest.conf file
-sed -i -e "s/build_timeout = 600/build_timeout = 1500/g" $CONF_PATH
+# sed -i -e "s/build_timeout = 600/build_timeout = 1500/g" $CONF_PATH
 
 echo "Setting the correct database URI in the tempest.conf file..."
 DB_URI=$(grep -i 'sql_connection=' /etc/nova/nova.conf | sed 's/sql_connection=//g')
