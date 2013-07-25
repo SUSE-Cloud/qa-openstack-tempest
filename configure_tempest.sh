@@ -94,17 +94,18 @@ else
 fi
 
 # boto EC2
-echo "Setting boto user information about EC2"
-echo "Querying for the EC2 information of admin user"
+echo "Setting boto user information about EC2..."
+echo "Querying for the EC2 information of user..."
+EC2User="admin"
+aws_access=$(keystone ec2-credentials-list | grep "|\s*${EC2User}\s*|" | awk -F\| '{print $3}')
+aws_secret=$(keystone ec2-credentials-list | grep "|\s*${EC2User}\s*|" | awk -F\| '{print $4}')
 
-admin_aws_access=$(keystone ec2-credentials-list | grep "|\s*admin\s*|" | awk -F\| '{print $3}')
-admin_aws_secret=$(keystone ec2-credentials-list | grep "|\s*admin\s*|" | awk -F\| '{print $4}')
-
-if [ ! -z "$admin_aws_access" -a ! -z "$admin_aws_secret" ]; then
-  sed -i -e "s/aws_access = .*/aws_access = $admin_aws_access/" $CONF_PATH
-  sed -i -e "s/aws_secret = .*/aws_secret = $admin_aws_secret/" $CONF_PATH
+if [ ! -z "$aws_access" -a ! -z "$aws_secret" ]; then
+  sed -i -e "s/aws_access = .*/aws_access = $aws_access/" \
+         -e "s/aws_secret = .*/aws_secret = $aws_secret/" \
+       $CONF_PATH
 else
-  echo "Unable to access boto EC2"
+  echo "Unable to access boto EC2."
 fi
 
 # prepare some tenants
