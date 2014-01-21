@@ -3,10 +3,8 @@
 # set environment
 . ~/.openrc
 
-# move run_tests.sh out of the way
-echo "Disabling run_tests.sh..."
-chmod 644 run_tests.sh
-mv run_tests.sh run_tests.sh.bk
+# add tools directory to PATH
+PATH="$PATH:/root/tempest/tempest/tools"
 
 CONF_PATH=~/tempest/etc/tempest.conf
 
@@ -15,36 +13,26 @@ echo "Setting the config path to $CONF_PATH..."
 cp "$CONF_PATH.sample" $CONF_PATH
 
 echo "Checking for the test images..."
-IMG1=$(glance image-list | grep 'jeos-64' | awk '{print $2}')
-IMG2=$(glance image-list | grep 'SP2-64' | awk '{print $2}')
+#IMG1=$(glance image-list | grep 'jeos-64' | awk '{print $2}')
+#IMG2=$(glance image-list | grep 'SP2-64' | awk '{print $2}')
+IMG1=$(glance image-list | grep 'cirros-0' | awk '{print $2}')
+IMG2=$(glance image-list | grep 'cirros-1' | awk '{print $2}')
 
 if [ "$IMG1" = "" ]; then
-  echo "Retrieving a JEOS-64 image..."
-  glance image-create --name=jeos-64 --is-public=True --container-format=bare --disk-format=qcow2 --property hypervisor_type=kvm --copy-from http://clouddata.cloud.suse.de/images/jeos-64.qcow2
-  IMG1=$(glance image-list | grep 'jeos-64' | awk '{print $2}')
+  echo "Retrieving a cirros-0 image..."
+  glance image-create --name=cirros-0 --is-public=True --container-format=bare --disk-format=qcow2 --property hypervisor_type=kvm --copy-from http://clouddata.cloud.suse.de/images/cirros-0.3.1-x86_64-disk.img
+  IMG1=$(glance image-list | grep 'cirros-0' | awk '{print $2}')
 else
-  echo "JEOS_64 image already in place."
+  echo "cirros-0 image already in place."
 fi
 
 if [ "$IMG2" = "" ]; then
-  echo "Retrieving SLES_SP2_x86_64 image ..."
-  glance image-create --name=SP2-64 --is-public=True --container-format=bare --disk-format=qcow2 --property hypervisor_type=kvm --copy-from http://clouddata.cloud.suse.de/images/SP2-64up.qcow2
-  IMG2=$(glance image-list | grep 'SP2-64' | awk '{print $2}')
+  echo "Retrieving the cirros-1 image ..."
+  glance image-create --name=cirros-1 --is-public=True --container-format=bare --disk-format=qcow2 --property hypervisor_type=kvm --copy-from http://clouddata.cloud.suse.de/images/cirros-0.3.1-x86_64-disk.img
+  IMG2=$(glance image-list | grep 'cirros-1' | awk '{print $2}')
 else
-  echo "SLES_SP2_x86_64 image already in place."
+  echo "cirros-1 image already in place."
 fi
-
-# upload some test images
-# KVM images
-# glance image-create --name=jeos-64 --is-public=True --container-format=bare --disk-format=qcow2 --copy-from http://clouddata.cloud.suse.de/images/jeos-64.qcow2
-# glance image-create --name=SP2-64 --is-public=True --container-format=bare --disk-format=qcow2 --copy-from http://clouddata.cloud.suse.de/images/SP2-64up.qcow2
-
-# ...alternatively Xen (HVM) images
-# glance image-create --name=jeos-64-hvm --is-public=True --container-format=bare --disk-format=qcow2 --property vm_mode=hvm --copy-from http://clouddata.cloud.suse.de/images/jeos-64.qcow2
-# glance image-create --name=SP2-64 --is-public=True --container-format=bare --disk-format=qcow2 --property vm_mode=hvm --copy-from http://clouddata.cloud.suse.de/images/SP2-64up.qcow
-
-# ... or Xen (PV) images
-# glance image-create --name=jeos-64-pv --is-public=True --container-format=bare --disk-format=qcow2 --property vm_mode=xen --copy-from http://clouddata.cloud.suse.de/images/jeos-64-pv.qcow2
 
 # extract the image IDs
 
@@ -56,36 +44,16 @@ echo "Copying image IDs into the configuration file..."
 sed -i -e "s/image_ref = .*/image_ref = $IMG1/" $CONF_PATH
 sed -i -e "s/image_ref_alt = .*/image_ref_alt = $IMG2/" $CONF_PATH
 
-# only necessary for HTTPS ------------>
-#host_name=$(hostname -f)
-#echo "Copying hostname ($host_name) into configuration..."
-#sed -i -e "s\uri = http://127.0.0.1:5000/v2.0/\uri = https://$host_name:5000/v2.0/\g" $CONF_PATH
-#sed -i -e "s\ec2_url = http://localhost:8773/services/Cloud\ec2_url = https://$host_name:8773/services/Cloud\g" $CONF_PATH
-#sed -i -e "s\s3_url = http://localhost:3333\s3_url = https://$host_name:3333\g" $CONF_PATH
-
 echo "Modifying the admin settings..."
-# modify the admin settings in the tempest.conf file also to the default for SUSE Cloud 2.0
+# modify the admin settings in the tempest.conf file also to the default for SUSE Cloud 3
 sed -i -e "s/admin_password = .*/admin_password = crowbar/g" $CONF_PATH
 sed -i -e "s/admin_tenant_name = .*/admin_tenant_name = openstack/g" $CONF_PATH
 
-#echo "Adjusting the build timeout..."
-# increase the build timeout in the tempest.conf file
-#sed -i -e "s/build_timeout = 600/build_timeout = 1500/g" $CONF_PATH
-
-echo "Setting the correct database URI in the tempest.conf file..."
-DB_URI=$(grep -i '^sql_connection=' /etc/nova/nova.conf | sed 's/sql_connection=//g')
-PREDECESSOR=$(grep -i 'db_uri =' ~/tempest/etc/tempest.conf)
-
-echo "Substituting \"$PREDECESSOR\" with \"db_uri = $DB_URI\"..."
-
-sed -i "s|$PREDECESSOR|db_uri = $DB_URI|g" $CONF_PATH
-
-# quantum
-echo "Setting flag to indicate that Quantum is available..."
-sed -i -e "s/quantum_available = .*/quantum_available = true/g" $CONF_PATH
+echo "Changing the fixed_network_name..."
+sed -i -e "s/fixed_network_name = private/fixed_network_name = fixed/g" $CONF_PATH
 
 echo "Querying for the public_network_id..."
-public_network_id=$(quantum net-list | grep 'floating' | awk '{print $2}')
+public_network_id=$(neutron net-list | grep 'floating' | awk '{print $2}')
 
 if [ "$public_network_id" != "" ] ; then
   echo "Configuring the public_network_id with $public_network_id ..."
@@ -95,7 +63,7 @@ else
 fi
 
 echo "Querying for the public_router_id..."
-public_router_id=$(quantum router-list | grep "$public_network_id" | awk '{print $2}')
+public_router_id=$(neutron router-list | grep "$public_network_id" | awk '{print $2}')
 
 if [ "$public_router_id" != "" ] ; then
   echo "Configuring the public_router_id with $public_router_id ..."
@@ -104,11 +72,15 @@ else
   echo "Unable to access the public_router_id."
 fi
 
-echo "Modifying the bin_dir path..."
-sed -i -e "s|bin_dir = /usr/local/bin|bin_dir = /usr/bin|g" $CONF_PATH
+echo "Querying the fixed network UUID for the default network..."
+default_network=$(neutron net-list | grep '|\sfixed\s\s*|' | awk '{print $2}')
 
-echo "Modifying the path_to_private_key..."
-sed -i -e "s|path_to_private_key = /home/user/.ssh/id_rsa|path_to_private_key = /root/.ssh/id_rsa|g" $CONF_PATH
+if [ "$default_network" != "" ] ; then
+  echo "Configuring the default_network with $default_network ..."
+  sed -i -e "s/#default_network=<None>/default_network=$default_network/g" $CONF_PATH
+else
+  echo "Unable to access fixed network UUID."
+fi
 
 echo "Querying for EC2 credentials..."
 ec2_credentials=$( keystone ec2-credentials-list | grep admin | sed -e "s/ //g" | cut -d"|" -f 3,4 )
@@ -125,13 +97,16 @@ else
   sed -i -e "s/aws_secret =.*/aws_secret = $ec2_pass/g" $CONF_PATH
 fi
 
-# see Bug #830568 - Changing the server password causes errors in Tempest
-echo "Setting change_password_available to false... (no KVM support)"
-sed -i -e "s/change_password_available=true/change_password_available=false/g" $CONF_PATH
-
 echo "Preparing config for live migration..."
 sed -i -e "s/live_migration_available = false/live_migration_available = true/g" $CONF_PATH
 sed -i -e "s/use_block_migration_for_live_migration = false/use_block_migration_for_live_migration = true/g" $CONF_PATH
+
+echo "Setting CLI directory..."
+sed -i -e "s\cli_dir = /usr/local/bin\cli_dir = /usr/bin\g" $CONF_PATH
+
+echo "Setting available services..."
+sed -i -e "s/neutron = false/neutron = True/g" $CONF_PATH
+sed -i -e "s/heat = false/heat = True/g" $CONF_PATH
 
 # prepare some tenants
 echo "Preparing new tenants..."
@@ -159,6 +134,9 @@ fi
 echo "Tenant \"demo\" has ID $DEMO"
 echo "Tenant \"alt_demo\" has ID $ALT_DEMO"
 
+echo "Allowing admin the admin rights to the tenant demo ..."
+keystone user-role-add --user admin --role admin --tenant demo
+
 echo "Creating some users..."
 # create some users
 
@@ -179,5 +157,10 @@ if [ "$USR_2" = "" ]; then
 else
   echo "User \"alt_demo\" already there."
 fi
+
+echo "Adding the python-openstack.nose_plugin package..."
+zypper -n addrepo http://download.opensuse.org/repositories/Cloud:OpenStack:Havana/SLE_11_SP3/Cloud:OpenStack:Havana.repo
+zypper refresh
+zypper -n install python-openstack.nose_plugin
 
 echo "Finished."
