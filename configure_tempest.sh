@@ -97,6 +97,9 @@ else
   sed -i -e "s/aws_secret =.*/aws_secret = $ec2_pass/g" $CONF_PATH
 fi
 
+echo "Disabling change-password support..."
+sed -i -e "s/change_password_available=true/change_password_available=false/g" $CONF_PATH
+
 echo "Preparing config for live migration..."
 sed -i -e "s/live_migration_available = false/live_migration_available = true/g" $CONF_PATH
 sed -i -e "s/use_block_migration_for_live_migration = false/use_block_migration_for_live_migration = true/g" $CONF_PATH
