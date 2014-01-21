@@ -97,6 +97,9 @@ else
   sed -i -e "s/aws_secret =.*/aws_secret = $ec2_pass/g" $CONF_PATH
 fi
 
+echo "Adding new variable to [orchestration]..."
+sed -i -e 's/^\[orchestration\]$/&\nmax_template_size = 524288/g' $CONF_PATH
+
 echo "Disabling change-password support..."
 sed -i -e "s/change_password_available=true/change_password_available=false/g" $CONF_PATH
 
