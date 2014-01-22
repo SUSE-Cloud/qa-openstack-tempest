@@ -58,7 +58,7 @@ sed -i -e "s/image_ref_alt = .*/image_ref_alt = $IMG2/" $CONF_PATH
 # the fedora image is copied to the [orchestration] section
 sed -i -e "s/^#image_ref =.*$/image_ref = $IMG3/" $CONF_PATH
 
-echo "Making an image directory for cirros images for the [scenario] tests...
+echo "Making an image directory for cirros images for the [scenario] tests..."
 mkdir ~/tempest/img
 cd ~/tempest/img
 echo "Getting the cirros images..."
