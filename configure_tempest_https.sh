@@ -3,19 +3,6 @@
 # set environment
 . ~/.openrc
 
-# add tools directory to PATH
-PATH="$PATH:/root/tempest/tempest/tools"
-
-echo "Downloading run_suse script..."
-# get a script that runs tempest for SUSE
-wget http://w3.suse.de/~jmichel/tempest/cloud3/scripts/run_suse.sh
-chmod 755 run_suse.sh
-
-echo "Downloading clean_up script..."
-# get a script that cleans up the environment once Tempest has finished executing
-wget http://w3.suse.de/~jmichel/tempest/cloud3/scripts/clean_up.sh
-chmod 755 clean_up.sh
-
 CONF_PATH=~/tempest/etc/tempest.conf
 
 echo "Setting the config path to $CONF_PATH..."
