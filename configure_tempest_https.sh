@@ -53,6 +53,18 @@ sed -i -e "s/image_ref_alt = .*/image_ref_alt = $IMG2/" $CONF_PATH
 # the fedora image is copied to the [orchestration] section
 sed -i -e "s/^#image_ref =.*$/image_ref = $IMG3/" $CONF_PATH
 
+echo "Making an image directory for cirros images for the [scenario] tests...
+mkdir ~/tempest/img
+cd ~/tempest/img
+echo "Getting the cirros images..."
+wget http://download.cirros-cloud.net/0.3.1/cirros-0.3.1-x86_64-uec.tar.gz
+echo "Unpacking the tarball..."
+tar -xf cirros-0.3.1-x86_64-uec.tar.gz
+
+# set the config
+sed -i -e "s|^img_dir = .*$|img_dir = $(pwd)|g" $CONF_PATH
+cd ..
+
 # only necessary for HTTPS ------------>
 host_name=$(hostname -f)
 echo "Copying hostname ($host_name) into configuration..."
