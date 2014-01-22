@@ -3,9 +3,6 @@
 # set environment
 . ~/.openrc
 
-# add tools directory to PATH
-PATH="$PATH:/root/tempest/tempest/tools"
-
 CONF_PATH=~/tempest/etc/tempest.conf
 
 echo "Setting the config path to $CONF_PATH..."
