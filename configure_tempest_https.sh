@@ -14,6 +14,7 @@ echo "Checking for the test images..."
 #IMG2=$(glance image-list | grep 'SP2-64' | awk '{print $2}')
 IMG1=$(glance image-list | grep 'cirros-0' | awk '{print $2}')
 IMG2=$(glance image-list | grep 'cirros-1' | awk '{print $2}')
+IMG3=$(glance image-list | grep 'fedora-0' | awk '{print $2}')
 
 if [ "$IMG1" = "" ]; then
   echo "Retrieving a cirros-0 image..."
@@ -31,6 +32,14 @@ else
   echo "cirros-1 image already in place."
 fi
 
+if [ "$IMG3" = "" ]; then
+  echo "Retrieving the fedora-0 image ..."
+  glance image-create --name=fedora-0 --is-public=True --container-format=bare --disk-format=qcow2 --property hypervisor_type=kvm --copy-from http://download.fedoraproject.org/pub/fedora/linux/releases/20/Images/x86_64/Fedora-x86_64-20-20131211.1-sda.qcow2
+  IMG3=$(glance image-list | grep 'fedora-0' | awk '{print $2}')
+else
+  echo "fedora-0 image already in place."
+fi
+
 # extract the image IDs
 
 echo "Image 1 has ID $IMG1"
@@ -40,6 +49,9 @@ echo "Copying image IDs into the configuration file..."
 # substitute these image IDs into the tempest.conf file
 sed -i -e "s/image_ref = .*/image_ref = $IMG1/" $CONF_PATH
 sed -i -e "s/image_ref_alt = .*/image_ref_alt = $IMG2/" $CONF_PATH
+
+# the fedora image is copied to the [orchestration] section
+sed -i -e "s/^#image_ref =.*$/image_ref = $IMG3/" $CONF_PATH
 
 # only necessary for HTTPS ------------>
 host_name=$(hostname -f)
