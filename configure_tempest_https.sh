@@ -77,7 +77,9 @@ sed -i -e "s\uri = http://127.0.0.1:5000/v2.0/\uri = https://$host_name:5000/v2.
 sed -i -e "s\uri_v3 = http://127.0.0.1:5000/v3/\uri_v3 = https://$host_name:5000/v3/\g" $CONF_PATH
 
 sed -i -e "s\ec2_url = http://localhost:8773/services/Cloud\ec2_url = https://$host_name:8773/services/Cloud\g" $CONF_PATH
-sed -i -e "s\s3_url = http://localhost:3333\s3_url = https://$host_name:3333\g" $CONF_PATH
+
+# s3_url remains as HTTP, since the nova-objectstore doesn't support HTTPS
+sed -i -e "s\s3_url = http://localhost:3333\s3_url = http://$host_name:3333\g" $CONF_PATH
 
 sed -i -e "s\dashboard_url = 'http://localhost/'\dashboard_url = 'https://$host_name/'\g" $CONF_PATH
 sed -i -e "s\login_url = 'http://localhost/auth/login/'\login_url = 'https://$host_name/auth/login/'\g" $CONF_PATH
