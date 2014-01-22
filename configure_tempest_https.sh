@@ -6,7 +6,7 @@ echo "SUSE Cloud 3 - Tempest configuration for HTTPS"
 . ~/.openrc
 
 echo "Installing a more up-to-date version of python-boto..."
-zypper install python-boto-2.22.0-47.1.x86_64
+zypper -n install python-boto-2.22.0-47.1.x86_64
 
 CONF_PATH=~/tempest/etc/tempest.conf
 
