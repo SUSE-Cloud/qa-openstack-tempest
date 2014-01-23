@@ -92,8 +92,18 @@ echo "Modifying the admin settings..."
 sed -i -e "s/admin_password = .*/admin_password = crowbar/g" $CONF_PATH
 sed -i -e "s/admin_tenant_name = .*/admin_tenant_name = openstack/g" $CONF_PATH
 
-echo "Adjusting the flavor instance_type to something that actually exists (m1.tiny)..."
-sed -i -e "s/instance_type = m1.micro/instance_type = m1.tiny/g" $CONF_PATH
+#echo "Adjusting the flavor instance_type to something that actually exists (m1.tiny)..."
+#sed -i -e "s/instance_type = m1.micro/instance_type = m1.tiny/g" $CONF_PATH
+
+echo "Checking for the flavor m1.micro..."
+flavor=$(nova flavor-list | grep 'm1.micro')
+
+if [ "$flavor" = "" ] ; then
+  echo "Flavor m1.micro not found, so adding it as a new flavor..."
+  nova flavor-create m1.micro 84 128 0 1
+else
+  echo "m1.micro already exists."
+fi
 
 echo "Changing the fixed_network_name..."
 sed -i -e "s/fixed_network_name = private/fixed_network_name = fixed/g" $CONF_PATH
