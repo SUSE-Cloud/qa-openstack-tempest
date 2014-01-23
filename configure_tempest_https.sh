@@ -49,6 +49,7 @@ fi
 
 echo "Image 1 has ID $IMG1"
 echo "Image 2 has ID $IMG2"
+echo "Image 3 has ID $IMG3"
 
 echo "Copying image IDs into the configuration file..."
 # substitute these image IDs into the tempest.conf file
