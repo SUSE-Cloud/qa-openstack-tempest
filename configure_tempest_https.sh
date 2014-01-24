@@ -23,7 +23,7 @@ IMG3=$(glance image-list | grep 'fedora-0' | awk '{print $2}')
 
 if [ "$IMG1" = "" ]; then
   echo "Retrieving a cirros-0 image..."
-  glance image-create --name=cirros-0 --is-public=True --container-format=bare --disk-format=qcow2 --property hypervisor_type=kvm --copy-from http://clouddata.cloud.suse.de/images/cirros-0.3.1-x86_64-disk.img
+  glance image-create --name=cirros-0 --is-public=True --container-format=bare --disk-format=qcow2 --property hypervisor_type=kvm --copy-from http://clouddata.cloud.suse.de/images/cirros-0.3.1-x86_64-disk.qcow2
   IMG1=$(glance image-list | grep 'cirros-0' | awk '{print $2}')
 else
   echo "cirros-0 image already in place."
@@ -31,7 +31,7 @@ fi
 
 if [ "$IMG2" = "" ]; then
   echo "Retrieving the cirros-1 image ..."
-  glance image-create --name=cirros-1 --is-public=True --container-format=bare --disk-format=qcow2 --property hypervisor_type=kvm --copy-from http://clouddata.cloud.suse.de/images/cirros-0.3.1-x86_64-disk.img
+  glance image-create --name=cirros-1 --is-public=True --container-format=bare --disk-format=qcow2 --property hypervisor_type=kvm --copy-from http://clouddata.cloud.suse.de/images/cirros-0.3.1-x86_64-disk.qcow2
   IMG2=$(glance image-list | grep 'cirros-1' | awk '{print $2}')
 else
   echo "cirros-1 image already in place."
