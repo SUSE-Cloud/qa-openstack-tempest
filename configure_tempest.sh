@@ -145,7 +145,7 @@ sed -i -e "s/#live_migration=false/live_migration=true/g" $CONF_PATH
 sed -i -e "s/#block_migration_for_live_migration=false/block_migration_for_live_migration=true/g" $CONF_PATH
 
 echo "Setting CLI directory..."
-sed -i -e "s\cli_dir=/usr/local/bin\cli_dir=/usr/bin\g" $CONF_PATH
+sed -i -e "s\#cli_dir=/usr/local/bin\cli_dir=/usr/bin\g" $CONF_PATH
 
 echo "Setting available services..."
 sed -i -e "s/#cinder=true/cinder=true/g" $CONF_PATH
