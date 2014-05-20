@@ -101,7 +101,7 @@ fi
 
 echo "Querying for the public_router_id..."
 public_router_id=$(neutron router-list | grep "$public_network_id" | awk '{print $2}')
-
+##################################
 if [ "$public_router_id" != "" ] ; then
   echo "Configuring the public_router_id with $public_router_id ..."
   sed -i -e "s/#public_router_id=.*/public_router_id=$public_router_id/g" $CONF_PATH
@@ -111,7 +111,7 @@ fi
 
 echo "Querying the fixed network UUID for the default network..."
 default_network=$(neutron net-list | grep '|\sfixed\s\s*|' | awk '{print $2}')
-
+###################################
 if [ "$default_network" != "" ] ; then
   echo "Configuring the default_network with $default_network ..."
   sed -i -e "s/#default_network=<None>/default_network=$default_network/g" $CONF_PATH
@@ -138,18 +138,24 @@ echo "Adding new variable to [orchestration]..."
 sed -i -e 's/^\[orchestration\]$/&\nmax_template_size = 524288/g' $CONF_PATH
 
 echo "Disabling change-password support..."
-sed -i -e "s/#change_password_available=true/change_password_available=false/g" $CONF_PATH
+sed -i -e "s/#change_password=true/change_password=false/g" $CONF_PATH
 
 echo "Preparing config for live migration..."
-sed -i -e "s/#live_migration_available=false/live_migration_available=true/g" $CONF_PATH
-sed -i -e "s/#use_block_migration_for_live_migration=false/use_block_migration_for_live_migration=true/g" $CONF_PATH
+sed -i -e "s/#live_migration=false/live_migration=true/g" $CONF_PATH
+sed -i -e "s/#block_migration_for_live_migration=false/block_migration_for_live_migration=true/g" $CONF_PATH
 
 echo "Setting CLI directory..."
-sed -i -e "s\cli_dir = /usr/local/bin\cli_dir = /usr/bin\g" $CONF_PATH
+sed -i -e "s\cli_dir=/usr/local/bin\cli_dir=/usr/bin\g" $CONF_PATH
 
 echo "Setting available services..."
+sed -i -e "s/#cinder=true/cinder=true/g" $CONF_PATH
 sed -i -e "s/#neutron=false/neutron=true/g" $CONF_PATH
+sed -i -e "s/#glance=true/glance=true/g" $CONF_PATH
+sed -i -e "s/#swift=true/swift=true/g" $CONF_PATH
+sed -i -e "s/#nova=true/nova=true/g" $CONF_PATH
 sed -i -e "s/#heat=false/heat=true/g" $CONF_PATH
+sed -i -e "s/#ceilometer=true/ceilometer=true/g" $CONF_PATH
+sed -i -e "s/#horizon=true/horizon=true/g" $CONF_PATH
 
 # prepare some tenants
 echo "Preparing new tenants..."
