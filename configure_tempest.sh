@@ -50,11 +50,11 @@ echo "Image 3 has ID $IMG3"
 
 echo "Copying image IDs into the configuration file..."
 # substitute these image IDs into the tempest.conf file
-sed -i -e "s/image_ref = .*/image_ref = $IMG1/" $CONF_PATH
-sed -i -e "s/image_ref_alt = .*/image_ref_alt = $IMG2/" $CONF_PATH
+sed -i -e "s/#image_ref=.*/image_ref=$IMG1/" $CONF_PATH
+sed -i -e "s/#image_ref_alt=.*/image_ref_alt=$IMG2/" $CONF_PATH
 
 # the fedora image is copied to the [orchestration] section
-sed -i -e "s/^#image_ref =.*$/image_ref = $IMG3/" $CONF_PATH
+sed -i -e "s/^#image_ref=.*$/image_ref=$IMG3/" $CONF_PATH
 
 echo "Making an image directory for cirros images for the [scenario] tests..."
 mkdir ~/tempest/img
@@ -65,13 +65,13 @@ echo "Unpacking the tarball..."
 tar -xf cirros-0.3.1-x86_64-uec.tar.gz
 
 # set the config
-sed -i -e "s|^img_dir = .*$|img_dir = $(pwd)|g" $CONF_PATH
+sed -i -e "s|^#img_dir=.*$|img_dir = $(pwd)|g" $CONF_PATH
 cd ..
 
 echo "Modifying the admin settings..."
 # modify the admin settings in the tempest.conf file also to the default for SUSE Cloud 3
-sed -i -e "s/admin_password = .*/admin_password = crowbar/g" $CONF_PATH
-sed -i -e "s/admin_tenant_name = .*/admin_tenant_name = openstack/g" $CONF_PATH
+sed -i -e "s/#admin_password=.*/admin_password=crowbar/g" $CONF_PATH
+sed -i -e "s/#admin_tenant_name=.*/admin_tenant_name=openstack/g" $CONF_PATH
 
 #echo "Adjusting the flavor instance_type to something that actually exists (m1.tiny)..."
 #sed -i -e "s/instance_type = m1.micro/instance_type = m1.tiny/g" $CONF_PATH
@@ -87,14 +87,14 @@ else
 fi
 
 echo "Changing the fixed_network_name..."
-sed -i -e "s/fixed_network_name = private/fixed_network_name = fixed/g" $CONF_PATH
+sed -i -e "s/#fixed_network_name=private/fixed_network_name=fixed/g" $CONF_PATH
 
 echo "Querying for the public_network_id..."
 public_network_id=$(neutron net-list | grep 'floating' | awk '{print $2}')
 
 if [ "$public_network_id" != "" ] ; then
   echo "Configuring the public_network_id with $public_network_id ..."
-  sed -i -e "s/public_network_id = .*/public_network_id = $public_network_id/g" $CONF_PATH
+  sed -i -e "s/#public_network_id=.*/public_network_id=$public_network_id/g" $CONF_PATH
 else
   echo "Unable to access the public_network_id."
 fi
@@ -104,7 +104,7 @@ public_router_id=$(neutron router-list | grep "$public_network_id" | awk '{print
 
 if [ "$public_router_id" != "" ] ; then
   echo "Configuring the public_router_id with $public_router_id ..."
-  sed -i -e "s/public_router_id = .*/public_router_id = $public_router_id/g" $CONF_PATH
+  sed -i -e "s/#public_router_id=.*/public_router_id=$public_router_id/g" $CONF_PATH
 else
   echo "Unable to access the public_router_id."
 fi
@@ -130,26 +130,26 @@ elif [ "$ec2_pass" == "" ] ; then
   echo "aws_secret is unavailable."
 else
   echo "Found EC2 credentials, now writing them to the config."
-  sed -i -e "s/aws_access =.*/aws_access = $ec2_user/g" $CONF_PATH
-  sed -i -e "s/aws_secret =.*/aws_secret = $ec2_pass/g" $CONF_PATH
+  sed -i -e "s/#aws_access=.*/aws_access=$ec2_user/g" $CONF_PATH
+  sed -i -e "s/#aws_secret=.*/aws_secret=$ec2_pass/g" $CONF_PATH
 fi
 
 echo "Adding new variable to [orchestration]..."
 sed -i -e 's/^\[orchestration\]$/&\nmax_template_size = 524288/g' $CONF_PATH
 
 echo "Disabling change-password support..."
-sed -i -e "s/change_password_available=true/change_password_available=false/g" $CONF_PATH
+sed -i -e "s/#change_password_available=true/change_password_available=false/g" $CONF_PATH
 
 echo "Preparing config for live migration..."
-sed -i -e "s/live_migration_available = false/live_migration_available = true/g" $CONF_PATH
-sed -i -e "s/use_block_migration_for_live_migration = false/use_block_migration_for_live_migration = true/g" $CONF_PATH
+sed -i -e "s/#live_migration_available=false/live_migration_available=true/g" $CONF_PATH
+sed -i -e "s/#use_block_migration_for_live_migration=false/use_block_migration_for_live_migration=true/g" $CONF_PATH
 
 echo "Setting CLI directory..."
 sed -i -e "s\cli_dir = /usr/local/bin\cli_dir = /usr/bin\g" $CONF_PATH
 
 echo "Setting available services..."
-sed -i -e "s/neutron = false/neutron = True/g" $CONF_PATH
-sed -i -e "s/heat = false/heat = True/g" $CONF_PATH
+sed -i -e "s/#neutron=false/neutron=true/g" $CONF_PATH
+sed -i -e "s/#heat=false/heat=true/g" $CONF_PATH
 
 # prepare some tenants
 echo "Preparing new tenants..."
