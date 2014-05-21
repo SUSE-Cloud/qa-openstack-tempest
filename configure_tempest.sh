@@ -157,6 +157,13 @@ sed -i -e "s/#heat=false/heat=true/g" $CONF_PATH
 sed -i -e "s/#ceilometer=true/ceilometer=true/g" $CONF_PATH
 sed -i -e "s/#horizon=true/horizon=true/g" $CONF_PATH
 
+# additional options added for icehouse commented out config
+
+sed -i -e "s/#use_stderr=true/use_stderr=false/g" $CONF_PATH
+sed -i -e "s/#log_file=<None>/log_file=tempest.log/g" $CONF_PATH
+sed -i -e "s/#lock_path=<None>/lock_path=/tmp/g" $CONF_PATH
+
+
 # prepare some tenants
 echo "Preparing new tenants..."
 

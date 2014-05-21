@@ -71,7 +71,7 @@ networks=$(neutron net-list | grep '-network\s' | awk '{print $2}')
 if [ "$networks" != "" ] ; then
   for network in $networks; do
     echo "Deleting network $network ..."
-    neutron net-delete $img
+    neutron net-delete $network
   done
 else
   echo "No networks to delete."
