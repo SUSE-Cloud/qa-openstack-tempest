@@ -65,4 +65,30 @@ else
   echo "No images to delete."
 fi
 
+echo "Deleting Neutron Networks..."
+networks=$(neutron net-list | grep '-network\s' | awk '{print $2}')
+
+if [ "$networks" != "" ] ; then
+  for network in $networks; do
+    echo "Deleting network $network ..."
+    neutron net-delete $img
+  done
+else
+  echo "No networks to delete."
+fi
+
+
+echo "Deleting Neutron routers..."
+routers=$(neutron router-list | grep -e '-router\s' | awk '{print $2}')
+
+if [ "$routers" != "" ] ; then
+  for router in $routers; do
+    echo "Deleting router $router ..."
+    neutron router-delete $router
+  done
+else
+  echo "No routers to delete."
+fi
+
+
 echo "Finished."
