@@ -5,11 +5,11 @@ echo "SUSE Cloud 3 - Tempest configuration for HTTP"
 # set environment
 . ~/.openrc
 
-CONF_PATH=~/tempest/etc/tempest.conf
+CONF_PATH=/etc/tempest/tempest.conf
 
 echo "Setting the config path to $CONF_PATH..."
 
-cp "$CONF_PATH.sample" $CONF_PATH
+cp "~/qa-openstack-tempest/tempest.conf.sample" $CONF_PATH
 
 echo "Checking for the test images..."
 #IMG1=$(glance image-list | grep 'jeos-64' | awk '{print $2}')
@@ -112,12 +112,12 @@ fi
 echo "Querying the fixed network UUID for the default network..."
 default_network=$(neutron net-list | grep '|\sfixed\s\s*|' | awk '{print $2}')
 ###################################
-if [ "$default_network" != "" ] ; then
-  echo "Configuring the default_network with $default_network ..."
-  sed -i -e "s/#default_network=<None>/default_network=$default_network/g" $CONF_PATH
-else
-  echo "Unable to access fixed network UUID."
-fi
+#if [ "$default_network" != "" ] ; then
+#  echo "Configuring the default_network with $default_network ..."
+#  sed -i -e "s/#default_network=<None>/default_network=$default_network/g" $CONF_PATH
+#else
+#  echo "Unable to access fixed network UUID."
+#fi
 
 echo "Querying for EC2 credentials..."
 ec2_credentials=$( keystone ec2-credentials-list | grep admin | sed -e "s/ //g" | cut -d"|" -f 3,4 )
