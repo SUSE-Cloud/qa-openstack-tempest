@@ -9,7 +9,7 @@ CONF_PATH=/etc/tempest/tempest.conf
 
 echo "Setting the config path to $CONF_PATH..."
 
-cp "~/qa-openstack-tempest/tempest.conf.sample" $CONF_PATH
+cp "/root/qa-openstack-tempest/tempest.conf.sample" $CONF_PATH
 
 echo "Checking for the test images..."
 #IMG1=$(glance image-list | grep 'jeos-64' | awk '{print $2}')
