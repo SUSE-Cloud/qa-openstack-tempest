@@ -87,7 +87,7 @@ else
 fi
 
 echo "Changing the fixed_network_name..."
-sed -i -e "s/#fixed_network_name=private/fixed_network_name=fixed/g" $CONF_PATH
+sed -i -e "s/#fixed_network_name=.*/fixed_network_name=fixed/g" $CONF_PATH
 
 echo "Querying for the public_network_id..."
 public_network_id=$(neutron net-list | grep 'floating' | awk '{print $2}')
@@ -112,12 +112,12 @@ fi
 echo "Querying the fixed network UUID for the default network..."
 default_network=$(neutron net-list | grep '|\sfixed\s\s*|' | awk '{print $2}')
 ###################################
-#if [ "$default_network" != "" ] ; then
-#  echo "Configuring the default_network with $default_network ..."
-#  sed -i -e "s/#default_network=<None>/default_network=$default_network/g" $CONF_PATH
-#else
-#  echo "Unable to access fixed network UUID."
-#fi
+if [ "$default_network" != "" ] ; then
+  echo "Configuring the default_network with $default_network ..."
+  sed -i -e "s/#default_network=.*/default_network=$default_network/g" $CONF_PATH
+else
+  echo "Unable to access fixed network UUID."
+fi
 
 echo "Querying for EC2 credentials..."
 ec2_credentials=$( keystone ec2-credentials-list | grep admin | sed -e "s/ //g" | cut -d"|" -f 3,4 )
@@ -138,14 +138,14 @@ echo "Adding new variable to [orchestration]..."
 sed -i -e 's/^\[orchestration\]$/&\nmax_template_size = 524288/g' $CONF_PATH
 
 echo "Disabling change-password support..."
-sed -i -e "s/#change_password=true/change_password=false/g" $CONF_PATH
+sed -i -e "s/#change_password=.*/change_password=false/g" $CONF_PATH
 
 echo "Preparing config for live migration..."
-sed -i -e "s/#live_migration=false/live_migration=true/g" $CONF_PATH
-sed -i -e "s/#block_migration_for_live_migration=false/block_migration_for_live_migration=true/g" $CONF_PATH
+sed -i -e "s/#live_migration=.*/live_migration=true/g" $CONF_PATH
+sed -i -e "s/#block_migration_for_live_migration=.*/block_migration_for_live_migration=true/g" $CONF_PATH
 
 echo "Setting CLI directory..."
-sed -i -e "s\#cli_dir=/usr/local/bin\cli_dir=/usr/bin\g" $CONF_PATH
+sed -i -e "s\#cli_dir=.*\cli_dir=/usr/bin\g" $CONF_PATH
 
 echo "Setting available services..."
 sed -i -e "s/#cinder=true/cinder=true/g" $CONF_PATH
@@ -159,9 +159,9 @@ sed -i -e "s/#horizon=true/horizon=true/g" $CONF_PATH
 
 # additional options added for icehouse commented out config
 
-sed -i -e "s/#use_stderr=true/use_stderr=false/g" $CONF_PATH
-sed -i -e "s/#log_file=<None>/log_file=tempest.log/g" $CONF_PATH
-sed -i -e "s/#lock_path=<None>/lock_path=/tmp/g" $CONF_PATH
+sed -i -e "s/#use_stderr=.*/use_stderr=false/g" $CONF_PATH
+sed -i -e "s/#log_file=.*/log_file=tempest.log/g" $CONF_PATH
+sed -i -e "s/#lock_path=.*/lock_path=/tmp/g" $CONF_PATH
 
 
 # prepare some tenants
