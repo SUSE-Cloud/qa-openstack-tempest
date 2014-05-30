@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "SUSE Cloud 3 - Tempest configuration for HTTP"
+echo "SUSE Cloud 4 - Tempest configuration for HTTP"
 
 # set environment
 . ~/.openrc
@@ -9,7 +9,7 @@ CONF_PATH=/etc/tempest/tempest.conf
 
 echo "Setting the config path to $CONF_PATH..."
 
-cp "/root/qa-openstack-tempest/tempest.conf.sample" $CONF_PATH
+cp "/var/lib/openstack-tempest-test/etc/tempest.conf.sample" $CONF_PATH
 
 echo "Checking for the test images..."
 #IMG1=$(glance image-list | grep 'jeos-64' | awk '{print $2}')
@@ -50,11 +50,14 @@ echo "Image 3 has ID $IMG3"
 
 echo "Copying image IDs into the configuration file..."
 # substitute these image IDs into the tempest.conf file
-sed -i -e "s/#image_ref=.*/image_ref=$IMG1/" $CONF_PATH
-sed -i -e "s/#image_ref_alt=.*/image_ref_alt=$IMG2/" $CONF_PATH
+#sed -i -e "s/#image_ref=.*/image_ref=$IMG1/" $CONF_PATH
+crudini --set $CONF_PATH compute image_ref $IMG1
+#sed -i -e "s/#image_ref_alt=.*/image_ref_alt=$IMG2/" $CONF_PATH
+crudini --set $CONF_PATH compute image_ref_alt $IMG2
 
 # the fedora image is copied to the [orchestration] section
-sed -i -e "s/^#image_ref=.*$/image_ref=$IMG3/" $CONF_PATH
+#sed -i -e "s/^#image_ref=.*$/image_ref=$IMG3/" $CONF_PATH
+crudini --set $CONF_PATH orchestration image_ref $IMG3
 
 echo "Making an image directory for cirros images for the [scenario] tests..."
 mkdir ~/tempest/img
@@ -65,13 +68,16 @@ echo "Unpacking the tarball..."
 tar -xf cirros-0.3.1-x86_64-uec.tar.gz
 
 # set the config
-sed -i -e "s|^#img_dir=.*$|img_dir = $(pwd)|g" $CONF_PATH
+#sed -i -e "s|^#img_dir=.*$|img_dir = $(pwd)|g" $CONF_PATH
+crudini --set $CONF_PATH scenario img_dir $(pwd)
 cd ..
 
 echo "Modifying the admin settings..."
 # modify the admin settings in the tempest.conf file also to the default for SUSE Cloud 3
-sed -i -e "s/#admin_password=.*/admin_password=crowbar/g" $CONF_PATH
-sed -i -e "s/#admin_tenant_name=.*/admin_tenant_name=openstack/g" $CONF_PATH
+#sed -i -e "s/#admin_password=.*/admin_password=crowbar/g" $CONF_PATH
+crudini --set $CONF_PATH identity admin_password crowbar
+#sed -i -e "s/#admin_tenant_name=.*/admin_tenant_name=openstack/g" $CONF_PATH
+crudini --set $CONF_PATH identity admin_tenant_name openstack
 
 #echo "Adjusting the flavor instance_type to something that actually exists (m1.tiny)..."
 #sed -i -e "s/instance_type = m1.micro/instance_type = m1.tiny/g" $CONF_PATH
@@ -87,34 +93,38 @@ else
 fi
 
 echo "Changing the fixed_network_name..."
-sed -i -e "s/#fixed_network_name=.*/fixed_network_name=fixed/g" $CONF_PATH
+#sed -i -e "s/#fixed_network_name=.*/fixed_network_name=fixed/g" $CONF_PATH
+crudini --set $CONF_PATH compute fixed_network_name fixed
 
 echo "Querying for the public_network_id..."
 public_network_id=$(neutron net-list | grep 'floating' | awk '{print $2}')
 
 if [ "$public_network_id" != "" ] ; then
   echo "Configuring the public_network_id with $public_network_id ..."
-  sed -i -e "s/#public_network_id=.*/public_network_id=$public_network_id/g" $CONF_PATH
+  #sed -i -e "s/#public_network_id=.*/public_network_id=$public_network_id/g" $CONF_PATH
+  crudini --set $CONF_PATH network public_network_id $public_network_id
 else
   echo "Unable to access the public_network_id."
 fi
 
 echo "Querying for the public_router_id..."
 public_router_id=$(neutron router-list | grep "$public_network_id" | awk '{print $2}')
-##################################
+
 if [ "$public_router_id" != "" ] ; then
   echo "Configuring the public_router_id with $public_router_id ..."
-  sed -i -e "s/#public_router_id=.*/public_router_id=$public_router_id/g" $CONF_PATH
+  #sed -i -e "s/#public_router_id=.*/public_router_id=$public_router_id/g" $CONF_PATH
+  crudini --set $CONF_PATH network public_router_id $public_router_id
 else
   echo "Unable to access the public_router_id."
 fi
 
 echo "Querying the fixed network UUID for the default network..."
 default_network=$(neutron net-list | grep '|\sfixed\s\s*|' | awk '{print $2}')
-###################################
+
 if [ "$default_network" != "" ] ; then
   echo "Configuring the default_network with $default_network ..."
-  sed -i -e "s/#default_network=.*/default_network=$default_network/g" $CONF_PATH
+  #sed -i -e "s/#default_network=.*/default_network=$default_network/g" $CONF_PATH
+  crudini --set $CONF_PATH network default_network $default_network
 else
   echo "Unable to access fixed network UUID."
 fi
@@ -130,38 +140,60 @@ elif [ "$ec2_pass" == "" ] ; then
   echo "aws_secret is unavailable."
 else
   echo "Found EC2 credentials, now writing them to the config."
-  sed -i -e "s/#aws_access=.*/aws_access=$ec2_user/g" $CONF_PATH
-  sed -i -e "s/#aws_secret=.*/aws_secret=$ec2_pass/g" $CONF_PATH
+  #sed -i -e "s/#aws_access=.*/aws_access=$ec2_user/g" $CONF_PATH
+  crudini --set $CONF_PATH boto aws_access $ec2_user
+  #sed -i -e "s/#aws_secret=.*/aws_secret=$ec2_pass/g" $CONF_PATH
+  crudini --set $CONF_PATH boto aws_secret $ec2_pass
 fi
 
 echo "Adding new variable to [orchestration]..."
-sed -i -e 's/^\[orchestration\]$/&\nmax_template_size = 524288/g' $CONF_PATH
+#sed -i -e 's/^\[orchestration\]$/&\nmax_template_size = 524288/g' $CONF_PATH
+crudini --set $CONF_PATH orchestration nmax_template_size 524288
 
 echo "Disabling change-password support..."
-sed -i -e "s/#change_password=.*/change_password=false/g" $CONF_PATH
+#sed -i -e "s/#change_password=.*/change_password=false/g" $CONF_PATH
+crudini --set $CONF_PATH compute-feature-enabled change_password false
 
 echo "Preparing config for live migration..."
-sed -i -e "s/#live_migration=.*/live_migration=true/g" $CONF_PATH
-sed -i -e "s/#block_migration_for_live_migration=.*/block_migration_for_live_migration=true/g" $CONF_PATH
+#sed -i -e "s/#live_migration=.*/live_migration=true/g" $CONF_PATH
+crudini --set $CONF_PATH compute-feature-enabled live_migration true
+#sed -i -e "s/#block_migration_for_live_migration=.*/block_migration_for_live_migration=true/g" $CONF_PATH
+crudini --set $CONF_PATH compute-feature-enabled block_migration_for_live_migration true
 
 echo "Setting CLI directory..."
-sed -i -e "s\#cli_dir=.*\cli_dir=/usr/bin\g" $CONF_PATH
+#sed -i -e "s\#cli_dir=.*\cli_dir=/usr/bin\g" $CONF_PATH
+crudini --set $CONF_PATH cli cli_dir /usr/bin
 
 echo "Setting available services..."
-sed -i -e "s/#cinder=true/cinder=true/g" $CONF_PATH
-sed -i -e "s/#neutron=false/neutron=true/g" $CONF_PATH
-sed -i -e "s/#glance=true/glance=true/g" $CONF_PATH
-sed -i -e "s/#swift=true/swift=true/g" $CONF_PATH
-sed -i -e "s/#nova=true/nova=true/g" $CONF_PATH
-sed -i -e "s/#heat=false/heat=true/g" $CONF_PATH
-sed -i -e "s/#ceilometer=true/ceilometer=true/g" $CONF_PATH
-sed -i -e "s/#horizon=true/horizon=true/g" $CONF_PATH
+#sed -i -e "s/#cinder=true/cinder=true/g" $CONF_PATH
+crudini --set $CONF_PATH service_available cinder true
+#sed -i -e "s/#neutron=false/neutron=true/g" $CONF_PATH
+crudini --set $CONF_PATH service_available neutron true
+#sed -i -e "s/#glance=true/glance=true/g" $CONF_PATH
+crudini --set $CONF_PATH service_available glance true
+#sed -i -e "s/#swift=true/swift=true/g" $CONF_PATH
+crudini --set $CONF_PATH service_available swift true
+#sed -i -e "s/#nova=true/nova=true/g" $CONF_PATH
+crudini --set $CONF_PATH service_available nova true
+#sed -i -e "s/#heat=false/heat=true/g" $CONF_PATH
+crudini --set $CONF_PATH service_available heat true
+#sed -i -e "s/#ceilometer=true/ceilometer=true/g" $CONF_PATH
+crudini --set $CONF_PATH service_available ceilometer true
+#sed -i -e "s/#horizon=true/horizon=true/g" $CONF_PATH
+crudini --set $CONF_PATH service_available horizon true
 
 # additional options added for icehouse commented out config
 
-sed -i -e "s/#use_stderr=.*/use_stderr=false/g" $CONF_PATH
-sed -i -e "s/#log_file=.*/log_file=tempest.log/g" $CONF_PATH
-sed -i -e "s/#lock_path=.*/lock_path=/tmp/g" $CONF_PATH
+#sed -i -e "s/#use_stderr=.*/use_stderr=false/g" $CONF_PATH
+crudini --set $CONF_PATH DEFAULT use_stderr false
+#sed -i -e "s/#log_file=.*/log_file=tempest.log/g" $CONF_PATH
+crudini --set $CONF_PATH DEFAULT log_file tempest.log
+#sed -i -e "s/#lock_path=.*/lock_path=/tmp/g" $CONF_PATH
+crudini --set $CONF_PATH DEFAULT lock_path /tmp
+#sed -i -e "s/#backup=.*/backup=falseg" $CONF_PATH
+crudini --set $CONF_PATH volume-feature-enabled backup false
+
+crudini --set $CONF_PATH volume storage_protocol iSCSI
 
 
 # prepare some tenants
@@ -214,10 +246,11 @@ else
   echo "User \"alt_demo\" already there."
 fi
 
-echo "Adding the python-openstack.nose_plugin package..."
-zypper -n addrepo http://download.opensuse.org/repositories/Cloud:OpenStack:Havana/SLE_11_SP3/Cloud:OpenStack:Havana.repo
-zypper refresh
-zypper -n install python-openstack.nose_plugin
+# Removed for Icehouse does not support nose anymore
+#echo "Adding the python-openstack.nose_plugin package..."
+#zypper -n addrepo http://download.opensuse.org/repositories/Cloud:OpenStack:Havana/SLE_11_SP3/Cloud:OpenStack:Havana.repo
+#zypper refresh
+#zypper -n install python-openstack.nose_plugin
 
-echo "Finished."
+echo "Finished. Please modify /etc/tempest/tempest.conf storage_protocol option in [volume] section to reflect your current config (iSCSI, ceph, ...)"
 
