@@ -60,7 +60,7 @@ crudini --set $CONF_PATH compute image_ref_alt $IMG2
 crudini --set $CONF_PATH orchestration image_ref $IMG3
 
 echo "Making an image directory for cirros images for the [scenario] tests..."
-mkdir ~/tempest/img
+mkdir -p ~/tempest/img
 cd ~/tempest/img
 echo "Getting the cirros images..."
 wget http://download.cirros-cloud.net/0.3.1/cirros-0.3.1-x86_64-uec.tar.gz
